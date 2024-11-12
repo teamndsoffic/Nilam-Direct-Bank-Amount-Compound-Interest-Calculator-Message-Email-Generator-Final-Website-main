@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compound Interest Calculator Message Email Generator</title>
+    <link rel="icon" href="NDS_Logo_Transparent.png" type="image/png">
+    <link rel="apple-touch-icon" sizes="180x180" href="NDS_Logo_Transparent.png">
+    <style>
+        /* CSS Styling */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f3f3f3;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        label {
+            font-weight: bold;
+        }
+        input[type="text"],
+        input[type="number"],
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #emailResult {
+            display: none;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        #emailContent {
+            white-space: pre-line;
+        }
+        video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+        }
+        footer {
+            background-color: #333333;
+            color: #fff;
+            text-align: center;
+            padding: 10px 0;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+        .warning {
+            color: red;
+            display: none;
+        }
+        .chart-container {
+            display: none;
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Video Background -->
+    <video autoplay loop muted playsinline>
+        <source src="background.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+
+    <!-- Main Container -->
+    <div class="container">
+        <h1>Compound Interest Calculator Message Email Generator</h1>
+        <form id="debitForm">
+            <label for="customerName">Customer Name:</label>
+            <input type="text" id="customerName" name="customerName" required><br><br>
+            <label for="interestRate">Interest Rate %:</label>
+            <input type="number" id="interestRate" name="interestRate" required><br><br>
+            <label for="months">Months:</label>
+            <input type="number" id="months" name="months" required><br><br>
+            <label for="amount">Loan Amount:</label>
+            <input type="number" id="amount" name="amount" required><br><br>
+            <label for="finalAmount">Total Amount Due (After Interest):</label>
+            <input type="number" id="finalAmount" name="finalAmount" readonly><br><br>
+            <button type="submit">Generate Final Amount Message</button>
+            <p id="warning" class="warning">Please fill all details</p>
+        </form>
+
+        <!-- Email Result Preview -->
+        <div id="emailResult">
+            <h2>Email Preview:</h2>
+            <p id="emailContent"></p>
+            <button id="copyButton" onclick="copyToClipboard()">Copy to Clipboard</button>
+        </div>
+
+        <!-- Loan Breakdown Chart -->
+        <div class="chart-container">
+            <h3>Loan Breakdown</h3>
+            <canvas id="loanChart"></canvas>
+            <p><strong>Interest Earned:</strong> ₹<span id="interestEarned"></span></p>
+            <p><strong>Principal Amount:</strong> ₹<span id="principalAmount"></span></p>
+            <p><strong>Total Value:</strong> ₹<span id="totalValue"></span></p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>Made With ❤️ By NDS Payments Corp.</footer>
+
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- JavaScript Functions -->
+    <script>
+        let loanChart;
+
+        function calculateCompoundInterest(principal, rate, months) {
+            const monthlyRate = rate / 100 / 12;
+            return principal * Math.pow(1 + monthlyRate, months);
+        }
+
+        function generateRandomLoanNumber() {
+            const randomPart = Math.random().toString(36).substr(2, 4).toUpperCase();
+            return `NDB-2024-${randomPart}`;
+        }
+
+        function calculateEMI(finalAmount, months) {
+            return (finalAmount / months).toFixed(2);
+        }
+
+        function getLoanPeriod(months) {
+    const startDate = new Date();
+    startDate.setMonth(startDate.getMonth() + 1); // Start date is one month after the current month
+    const endDate = new Date(startDate);
+    endDate.setMonth(endDate.getMonth() + months - 1); // Subtract 1 month to adjust for the correct end month
+    const options = { month: 'long', year: 'numeric' };
+    return `${startDate.toLocaleDateString('en-GB', options)} to ${endDate.toLocaleDateString('en-GB', options)}`;
+}
+
+
+        function getFormattedCurrentDate() {
+            const date = new Date();
+            date.setMonth(date.getMonth() + 1); // Start date is one month after the current month
+            return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`;
+        }
+
+        document.getElementById("debitForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const customerName = document.getElementById("customerName").value;
+            const interestRate = parseFloat(document.getElementById("interestRate").value);
+            const months = parseInt(document.getElementById("months").value);
+            const amount = parseFloat(document.getElementById("amount").value);
+
+            if (!customerName || isNaN(interestRate) || isNaN(months) || isNaN(amount)) {
+                document.getElementById("warning").style.display = "block";
+                return;
+            } else {
+                document.getElementById("warning").style.display = "none";
+            }
+
+            const finalAmount = calculateCompoundInterest(amount, interestRate, months).toFixed(2);
+            document.getElementById("finalAmount").value = finalAmount;
+
+            const interestEarned = (finalAmount - amount).toFixed(2);
+            const loanNumber = generateRandomLoanNumber();
+            const emi = calculateEMI(finalAmount, months);
+            const loanPeriod = getLoanPeriod(months);
+            const loanStartDate = getFormattedCurrentDate();
+
+            const emailContent = `Subject: Loan Confirmation Email👍\n\n` +
+                `Dear Mr/Ms ${customerName},\n\n` +
+                `Your loan application has been approved with the following details:\n\n` +
+                `- Loan Number: ${loanNumber}\n` +
+                `- Loan Amount: ₹${amount}\n` +
+                `- Interest Rate: ${interestRate}% p.a.\n` +
+                `- Monthly EMI (including interest): ₹${emi}\n` +
+                `- Loan Duration: ${months} months (${loanPeriod})\n` +
+                `- Loan Start Date: ${loanStartDate}\n` +
+                `- Total Amount Due: ₹${finalAmount}\n\n` +
+                `Best regards,\nNilam Direct Bank`;
+
+            document.getElementById("emailContent").innerText = emailContent;
+            document.getElementById("emailResult").style.display = "block";
+            document.getElementById("interestEarned").innerText = interestEarned;
+            document.getElementById("principalAmount").innerText = amount.toFixed(2);
+            document.getElementById("totalValue").innerText = finalAmount;
+            document.querySelector('.chart-container').style.display = 'block';
+
+            if (loanChart) loanChart.destroy();
+            loanChart = new Chart(document.getElementById("loanChart"), {
+                type: 'pie',
+                data: {
+                    labels: ['Principal', 'Interest'],
+                    datasets: [{
+                        data: [amount, interestEarned],
+                        backgroundColor: ['#36a2eb', '#ff6384']
+                    }]
+                },
+                options: { responsive: true }
+            });
+        });
+
+        function copyToClipboard() {
+            navigator.clipboard.writeText(document.getElementById("emailContent").innerText)
+                .then(() => alert("Email content copied to clipboard!"));
+        }
+    </script>
+</body>
+</html>
