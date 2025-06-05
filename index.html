@@ -1,236 +1,505 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Compound Interest Calculator Message Email Generator</title>
-    <link rel="icon" href="NDS_Logo_Transparent.png" type="image/png">
-    <link rel="apple-touch-icon" sizes="180x180" href="NDS_Logo_Transparent.png">
-    <style>
-        /* CSS Styling */
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f3f3f3;
-            color: #333;
-        }
-        .container {
-            max-width: 600px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: rgba(255, 255, 255, 0.8);
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        label {
-            font-weight: bold;
-        }
-        input[type="text"],
-        input[type="number"],
-        button {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
-        }
-        button {
-            background-color: #007bff;
-            color: #fff;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        #emailResult {
-            display: none;
-            padding: 20px;
-            background-color: #f9f9f9;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        #emailContent {
-            white-space: pre-line;
-        }
-        video {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: -1;
-        }
-        footer {
-            background-color: #333333;
-            color: #fff;
-            text-align: center;
-            padding: 10px 0;
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-        }
-        .warning {
-            color: red;
-            display: none;
-        }
-        .chart-container {
-            display: none;
-            margin-top: 20px;
-            text-align: center;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Compound Interest Calculator Message Email Generator</title>
+  <link rel="icon" href="NDS_Logo_Transparent.png" type="image/png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="NDS_Logo_Transparent.png" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js-plugin-datalabels"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #333;
+      overflow-x: hidden;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    }
+    .image-background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('coolbackgrounds-fractalize-ember_spark.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      z-index: -1;
+      filter: brightness(0.8);
+    }
+    .container {
+      max-width: 700px;
+      margin: 60px auto 100px auto;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      animation: fadeInUp 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #222;
+      font-weight: 600;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    label {
+      font-weight: bold;
+      color: #444;
+      display: block;
+      margin-top: 15px;
+    }
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0 15px 0;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      outline: none;
+      font-size: 16px;
+      background-color: rgba(255, 255, 255, 0.9);
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    input[type="text"]:focus,
+    input[type="number"]:focus {
+      border-color: #0d6efd;
+      box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+    }
+    button {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+      box-shadow: 0 4px 6px rgba(13, 110, 253, 0.15);
+      position: relative;
+      overflow: hidden;
+    }
+    button:hover {
+      background: linear-gradient(135deg, #0b5ed7 0%, #0845aa 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(13, 110, 253, 0.2);
+    }
+    button:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 4px rgba(13, 110, 253, 0.15);
+    }
+    .refreshing {
+      background: linear-gradient(135deg, #ffc107 0%, #ffab00 100%) !important;
+      color: #000 !important;
+      animation: pulse 1.5s ease infinite, glassEffect 2s infinite alternate;
+    }
+    .refreshing::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        to bottom right,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        rgba(255, 255, 255, 0) 100%
+      );
+      transform: rotate(30deg);
+      animation: shine 3s infinite;
+    }
+    #copyButton.copied {
+      background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+      animation: fadeFlash 1s ease, bounce 0.5s ease;
+    }
+    #emailResult {
+      display: none;
+      margin-top: 25px;
+      background: rgba(255, 255, 255, 0.7);
+      padding: 20px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      animation: fadeIn 0.6s ease-out forwards;
+    }
+    #emailContent {
+      white-space: pre-line;
+      color: #333;
+      line-height: 1.6;
+      margin: 15px 0;
+    }
+    .chart-container {
+      display: none;
+      margin-top: 30px;
+      text-align: center;
+      animation: fadeInScale 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+    }
+    .chart-placeholder {
+      width: 300px;
+      height: 300px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .chart-placeholder::before {
+      content: '';
+      position: absolute;
+      width: 150%;
+      height: 150%;
+      background: conic-gradient(
+        rgba(75, 192, 192, 0.3) 0%,
+        rgba(255, 159, 64, 0.3) 100%
+      );
+      animation: rotatePlaceholder 2s linear infinite;
+    }
+    canvas {
+      max-width: 300px;
+      margin: auto;
+      opacity: 0;
+      animation: fadeIn 0.8s 0.4s ease-out forwards;
+    }
+    footer {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.9);
+      color: #333;
+      text-align: center;
+      padding: 12px;
+      transform: translateY(100%);
+      transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+      border-top: 1px solid rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+    }
+    footer.visible {
+      transform: translateY(0);
+    }
+    .refresh-btn {
+      margin-top: 25px;
+      background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .warning {
+      color: #dc3545 !important;
+      display: none;
+      font-weight: bold;
+      text-align: center;
+      margin-top: 10px;
+      animation: shake 0.5s ease;
+    }
+    .loan-stats {
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+    }
+    .loan-stats p {
+      background: rgba(255, 255, 255, 0.7);
+      padding: 12px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes fadeInScale {
+      from {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.4);
+      }
+      70% {
+        transform: scale(1.02);
+        box-shadow: 0 0 0 10px rgba(255, 193, 7, 0);
+      }
+      100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(255, 193, 7, 0);
+      }
+    }
+    @keyframes glassEffect {
+      0% { backdrop-filter: blur(5px); }
+      100% { backdrop-filter: blur(10px); }
+    }
+    @keyframes shine {
+      to {
+        transform: translateX(100%) rotate(30deg);
+      }
+    }
+    @keyframes fadeFlash {
+      from {
+        opacity: 0.6;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+    @keyframes rotatePlaceholder {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+      20%, 40%, 60%, 80% { transform: translateX(5px); }
+    }
+  </style>
 </head>
 <body>
-
-    <!-- Video Background -->
-    <video autoplay loop muted playsinline>
-        <source src="background.mp4" type="video/mp4">
-        Your browser does not support the video tag.
-    </video>
-
-    <!-- Main Container -->
-    <div class="container">
-        <h1>Compound Interest Calculator Message Email Generator</h1>
-        <form id="debitForm">
-            <label for="customerName">Customer Name:</label>
-            <input type="text" id="customerName" name="customerName" required><br><br>
-            <label for="interestRate">Interest Rate %:</label>
-            <input type="number" id="interestRate" name="interestRate" required><br><br>
-            <label for="months">Months:</label>
-            <input type="number" id="months" name="months" required><br><br>
-            <label for="amount">Loan Amount:</label>
-            <input type="number" id="amount" name="amount" required><br><br>
-            <label for="finalAmount">Total Amount Due (After Interest):</label>
-            <input type="number" id="finalAmount" name="finalAmount" readonly><br><br>
-            <button type="submit">Generate Final Amount Message</button>
-            <p id="warning" class="warning">Please fill all details</p>
-        </form>
-
-        <!-- Email Result Preview -->
-        <div id="emailResult">
-            <h2>Email Preview:</h2>
-            <p id="emailContent"></p>
-            <button id="copyButton" onclick="copyToClipboard()">Copy to Clipboard</button>
-        </div>
-
-        <!-- Loan Breakdown Chart -->
-        <div class="chart-container">
-            <h3>Loan Breakdown</h3>
-            <canvas id="loanChart"></canvas>
-            <p><strong>Interest Earned:</strong> ₹<span id="interestEarned"></span></p>
-            <p><strong>Principal Amount:</strong> ₹<span id="principalAmount"></span></p>
-            <p><strong>Total Value:</strong> ₹<span id="totalValue"></span></p>
-        </div>
+  <div class="image-background"></div>
+  <div class="container">
+    <h1>Compound Interest Calculator Message Email Generator</h1>
+    <form id="debitForm">
+      <label>Customer Name:</label>
+      <input type="text" id="customerName" required />
+      <label>Interest Rate %:</label>
+      <input type="number" id="interestRate" required />
+      <label>Months:</label>
+      <input type="number" id="months" required />
+      <label>Loan Amount:</label>
+      <input type="number" id="amount" required />
+      <label>Total Amount Due (After Interest):</label>
+      <input type="number" id="finalAmount" readonly />
+      <button type="submit" id="generateBtn">
+        <span id="btnText">Generate Final Amount Message</span>
+      </button>
+      <p class="warning">Please fill all details</p>
+    </form>
+    <div id="emailResult">
+      <h2 style="color: #222;">Email Preview:</h2>
+      <p id="emailContent"></p>
+      <button id="copyButton" onclick="copyToClipboard()">Copy to Clipboard</button>
     </div>
+    <div class="chart-container" id="chartSection">
+      <h3 style="color: #222;">Loan Breakdown</h3>
+      <div class="chart-placeholder" id="chartPlaceholder"></div>
+      <canvas id="loanChart"></canvas>
+      <div class="loan-stats">
+        <p><strong>Interest Earned:</strong> ₹<span id="interestEarned"></span></p>
+        <p><strong>Principal Amount:</strong> ₹<span id="principalAmount"></span></p>
+        <p><strong>Total Value:</strong> ₹<span id="totalValue"></span></p>
+      </div>
+      <button class="refresh-btn" onclick="refreshPage()">🔄 Refresh Calculation</button>
+    </div>
+  </div>
+  <footer id="footer">Made With ❤️ By NDS Payments Corp.</footer>
+  <script>
+    let loanChart;
+    const form = document.getElementById("debitForm");
+    const chartPlaceholder = document.getElementById("chartPlaceholder");
+    
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
 
-    <!-- Footer -->
-    <footer>Made With ❤️ By NDS Payments Corp.</footer>
+      const btn = document.getElementById("generateBtn");
+      const btnText = document.getElementById("btnText");
+      btnText.textContent = "Calculating...";
+      btn.classList.add("refreshing");
 
-    <!-- Chart.js Library -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+      // Smooth loading animation
+      setTimeout(() => {
+        btnText.textContent = "Generating Results...";
+      }, 800);
 
-    <!-- JavaScript Functions -->
-    <script>
-        let loanChart;
+      const name = document.getElementById("customerName").value;
+      const rate = parseFloat(document.getElementById("interestRate").value);
+      const months = parseInt(document.getElementById("months").value);
+      const amount = parseFloat(document.getElementById("amount").value);
 
-        function calculateCompoundInterest(principal, rate, months) {
-            const monthlyRate = rate / 100 / 12;
-            return principal * Math.pow(1 + monthlyRate, months);
-        }
+      if (!name || isNaN(rate) || isNaN(months) || isNaN(amount)) {
+        document.querySelector(".warning").style.display = "block";
+        btnText.textContent = "Generate Final Amount Message";
+        btn.classList.remove("refreshing");
+        return;
+      }
 
-        function generateRandomLoanNumber() {
-            const randomPart = Math.random().toString(36).substr(2, 4).toUpperCase();
-            return `NDB-2024-${randomPart}`;
-        }
+      document.querySelector(".warning").style.display = "none";
+      
+      // Simulate processing delay for better UX
+      setTimeout(() => {
+        calculateAndDisplayResults(name, rate, months, amount);
+        btnText.textContent = "Generate Final Amount Message";
+        btn.classList.remove("refreshing");
+      }, 1800);
+    });
 
-        function calculateEMI(finalAmount, months) {
-            return (finalAmount / months).toFixed(2);
-        }
+    function calculateAndDisplayResults(name, rate, months, amount) {
+      const final = (amount * Math.pow(1 + rate / 100 / 12, months)).toFixed(2);
+      document.getElementById("finalAmount").value = final;
 
-        function getLoanPeriod(months) {
-    const startDate = new Date();
-    startDate.setMonth(startDate.getMonth() + 1); // Start date is one month after the current month
-    const endDate = new Date(startDate);
-    endDate.setMonth(endDate.getMonth() + months - 1); // Subtract 1 month to adjust for the correct end month
-    const options = { month: 'long', year: 'numeric' };
-    return `${startDate.toLocaleDateString('en-GB', options)} to ${endDate.toLocaleDateString('en-GB', options)}`;
-}
+      const interest = (final - amount).toFixed(2);
+      const loanNumber = `NDB-2025-${Math.random().toString(36).substr(2, 4).toUpperCase()}`;
+      const emi = (final / months).toFixed(2);
+      const now = new Date();
+      const startDate = new Date(now.setMonth(now.getMonth() + 1));
+      const endDate = new Date(startDate);
+      endDate.setMonth(endDate.getMonth() + months - 1);
 
+      const content = `Subject: Loan Confirmation Email👍\n\nDear Mr/Ms ${name},\n\nYour loan has been approved:\n- Loan Number: ${loanNumber}\n- Loan Amount: ₹${amount}\n- Interest Rate: ${rate}%\n- Monthly EMI: ₹${emi}\n- Duration: ${months} months (${startDate.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })} to ${endDate.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })})\n- Start Date: ${startDate.toLocaleDateString('en-GB')}\n- Total Amount Due: ₹${final}\n\nBest regards,\nNilam Direct Bank`;
 
-        function getFormattedCurrentDate() {
-            const date = new Date();
-            date.setMonth(date.getMonth() + 1); // Start date is one month after the current month
-            return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`;
-        }
+      document.getElementById("emailContent").innerText = content;
+      document.getElementById("emailResult").style.display = "block";
+      document.getElementById("interestEarned").innerText = interest;
+      document.getElementById("principalAmount").innerText = amount;
+      document.getElementById("totalValue").innerText = final;
 
-        document.getElementById("debitForm").addEventListener("submit", function(event) {
-            event.preventDefault();
-            const customerName = document.getElementById("customerName").value;
-            const interestRate = parseFloat(document.getElementById("interestRate").value);
-            const months = parseInt(document.getElementById("months").value);
-            const amount = parseFloat(document.getElementById("amount").value);
+      // Show chart section with placeholder first
+      document.getElementById("chartSection").style.display = "block";
+      chartPlaceholder.style.display = "block";
+      document.getElementById("loanChart").style.display = "none";
 
-            if (!customerName || isNaN(interestRate) || isNaN(months) || isNaN(amount)) {
-                document.getElementById("warning").style.display = "block";
-                return;
-            } else {
-                document.getElementById("warning").style.display = "none";
-            }
+      // After a delay, hide placeholder and show chart with animation
+      setTimeout(() => {
+        chartPlaceholder.style.display = "none";
+        document.getElementById("loanChart").style.display = "block";
+        
+        if (loanChart) loanChart.destroy();
+        createAnimatedChart(amount, interest);
+      }, 1200);
+    }
 
-            const finalAmount = calculateCompoundInterest(amount, interestRate, months).toFixed(2);
-            document.getElementById("finalAmount").value = finalAmount;
-
-            const interestEarned = (finalAmount - amount).toFixed(2);
-            const loanNumber = generateRandomLoanNumber();
-            const emi = calculateEMI(finalAmount, months);
-            const loanPeriod = getLoanPeriod(months);
-            const loanStartDate = getFormattedCurrentDate();
-
-            const emailContent = `Subject: Loan Confirmation Email👍\n\n` +
-                `Dear Mr/Ms ${customerName},\n\n` +
-                `Your loan application has been approved with the following details:\n\n` +
-                `- Loan Number: ${loanNumber}\n` +
-                `- Loan Amount: ₹${amount}\n` +
-                `- Interest Rate: ${interestRate}% p.a.\n` +
-                `- Monthly EMI (including interest): ₹${emi}\n` +
-                `- Loan Duration: ${months} months (${loanPeriod})\n` +
-                `- Loan Start Date: ${loanStartDate}\n` +
-                `- Total Amount Due: ₹${finalAmount}\n\n` +
-                `Best regards,\nNilam Direct Bank`;
-
-            document.getElementById("emailContent").innerText = emailContent;
-            document.getElementById("emailResult").style.display = "block";
-            document.getElementById("interestEarned").innerText = interestEarned;
-            document.getElementById("principalAmount").innerText = amount.toFixed(2);
-            document.getElementById("totalValue").innerText = finalAmount;
-            document.querySelector('.chart-container').style.display = 'block';
-
-            if (loanChart) loanChart.destroy();
-            loanChart = new Chart(document.getElementById("loanChart"), {
-                type: 'pie',
-                data: {
-                    labels: ['Principal', 'Interest'],
-                    datasets: [{
-                        data: [amount, interestEarned],
-                        backgroundColor: ['#36a2eb', '#ff6384']
-                    }]
+    function createAnimatedChart(amount, interest) {
+      loanChart = new Chart(document.getElementById("loanChart"), {
+        type: 'pie',
+        data: {
+          labels: ['Principal', 'Interest'],
+          datasets: [{
+            data: [amount, interest],
+            backgroundColor: [
+              'rgba(75, 192, 192, 0.8)',
+              'rgba(255, 159, 64, 0.8)'
+            ],
+            borderColor: 'rgba(255, 255, 255, 0.8)',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          animation: {
+            animateScale: true,
+            animateRotate: true,
+            duration: 1800,
+            easing: 'easeOutQuart'
+          },
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                color: '#333',
+                font: {
+                  size: 14,
+                  weight: '500'
                 },
-                options: { responsive: true }
-            });
-        });
-
-        function copyToClipboard() {
-            navigator.clipboard.writeText(document.getElementById("emailContent").innerText)
-                .then(() => alert("Email content copied to clipboard!"));
+                padding: 20
+              }
+            },
+            tooltip: {
+              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              titleFont: {
+                size: 16,
+                weight: 'bold'
+              },
+              bodyFont: {
+                size: 14
+              },
+              padding: 12,
+              cornerRadius: 8
+            }
+          },
+          cutout: '60%',
+          radius: '80%'
         }
-    </script>
+      });
+    }
+
+    function copyToClipboard() {
+      const btn = document.getElementById("copyButton");
+      navigator.clipboard.writeText(document.getElementById("emailContent").innerText).then(() => {
+        btn.classList.add("copied");
+        btn.textContent = "Copied Successfully!";
+        setTimeout(() => {
+          btn.classList.remove("copied");
+          btn.textContent = "Copy to Clipboard";
+        }, 4000);
+      });
+    }
+
+    function refreshPage() {
+      const btn = document.querySelector(".refresh-btn");
+      btn.classList.add("refreshing");
+      btn.innerHTML = '<span>🔄 Refreshing...</span>';
+      
+      // Add a smooth fade out effect before reload
+      document.querySelector('.container').style.animation = 'fadeInUp 0.6s cubic-bezier(0.23, 1, 0.32, 1) reverse forwards';
+      setTimeout(() => {
+        location.reload();
+      }, 800);
+    }
+
+    const footer = document.getElementById("footer");
+    let lastScrollTop = 0;
+    window.addEventListener("scroll", () => {
+      const st = window.scrollY || document.documentElement.scrollTop;
+      if (st > lastScrollTop) {
+        footer.classList.add("visible");
+      } else {
+        footer.classList.remove("visible");
+      }
+      lastScrollTop = st <= 0 ? 0 : st;
+    });
+
+    // Initialize with footer hidden
+    setTimeout(() => {
+      footer.classList.remove("visible");
+    }, 100);
+  </script>
 </body>
 </html>
