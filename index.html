@@ -78,7 +78,6 @@
       box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
     }
     button {
-      width: 100%;
       padding: 15px;
       background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
       border: none;
@@ -91,6 +90,10 @@
       box-shadow: 0 4px 6px rgba(13, 110, 253, 0.15);
       position: relative;
       overflow: hidden;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
     button:hover {
       background: linear-gradient(135deg, #0b5ed7 0%, #0845aa 100%);
@@ -222,6 +225,14 @@
       border-radius: 8px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     }
+    .email-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    .email-buttons button {
+      flex: 1;
+    }
     @keyframes fadeInUp {
       from {
         opacity: 0;
@@ -315,7 +326,10 @@
     <div id="emailResult">
       <h2 style="color: #222;">Email Preview:</h2>
       <p id="emailContent"></p>
-      <button id="copyButton" onclick="copyToClipboard()">Copy to Clipboard</button>
+      <div class="email-buttons">
+        <button id="copyButton">📋 Copy to Clipboard</button>
+        <button id="openEmailButton">📧 Open in Email App</button>
+      </div>
     </div>
     <div class="chart-container" id="chartSection">
       <h3 style="color: #222;">Loan Breakdown</h3>
@@ -335,6 +349,10 @@
     const form = document.getElementById("debitForm");
     const chartPlaceholder = document.getElementById("chartPlaceholder");
     
+    // Store email content for reuse
+    let emailSubject = "";
+    let emailBody = "";
+
     form.addEventListener("submit", function (e) {
       e.preventDefault();
 
@@ -382,7 +400,10 @@
       const endDate = new Date(startDate);
       endDate.setMonth(endDate.getMonth() + months - 1);
 
-      const content = `Subject: Loan Confirmation Email👍\n\nDear Mr/Ms ${name},\n\nYour loan has been approved:\n- Loan Number: ${loanNumber}\n- Loan Amount: ₹${amount}\n- Interest Rate: ${rate}%\n- Monthly EMI: ₹${emi}\n- Duration: ${months} months (${startDate.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })} to ${endDate.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })})\n- Start Date: ${startDate.toLocaleDateString('en-GB')}\n- Total Amount Due: ₹${final}\n\nBest regards,\nNilam Direct Bank`;
+      emailSubject = "Loan Confirmation Email👍";
+      emailBody = `Dear Mr/Ms ${name},\n\nYour loan has been approved:\n- Loan Number: ${loanNumber}\n- Loan Amount: ₹${amount}\n- Interest Rate: ${rate}%\n- Monthly EMI: ₹${emi}\n- Duration: ${months} months (${startDate.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })} to ${endDate.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })})\n- Start Date: ${startDate.toLocaleDateString('en-GB')}\n- Total Amount Due: ₹${final}\n\nBest regards,\nNilam Direct Bank`;
+
+      const content = `Subject: ${emailSubject}\n\n${emailBody}`;
 
       document.getElementById("emailContent").innerText = content;
       document.getElementById("emailResult").style.display = "block";
@@ -462,14 +483,34 @@
 
     function copyToClipboard() {
       const btn = document.getElementById("copyButton");
-      navigator.clipboard.writeText(document.getElementById("emailContent").innerText).then(() => {
+      const content = `Subject: ${emailSubject}\n\n${emailBody}`;
+      
+      navigator.clipboard.writeText(content).then(() => {
         btn.classList.add("copied");
-        btn.textContent = "Copied Successfully!";
+        btn.textContent = "📋 Copied!";
         setTimeout(() => {
           btn.classList.remove("copied");
-          btn.textContent = "Copy to Clipboard";
+          btn.textContent = "📋 Copy to Clipboard";
         }, 4000);
       });
+    }
+
+    function openInEmailApp() {
+      const btn = document.getElementById("openEmailButton");
+      
+      // Create mailto link
+      const mailtoLink = `mailto:?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+      
+      // Open default email client
+      window.location.href = mailtoLink;
+      
+      // Visual feedback
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<span>⏳ Opening...</span>';
+      
+      setTimeout(() => {
+        btn.innerHTML = originalText;
+      }, 2000);
     }
 
     function refreshPage() {
@@ -500,6 +541,10 @@
     setTimeout(() => {
       footer.classList.remove("visible");
     }, 100);
+
+    // Add event listeners
+    document.getElementById('copyButton').addEventListener('click', copyToClipboard);
+    document.getElementById('openEmailButton').addEventListener('click', openInEmailApp);
   </script>
 </body>
 </html>
